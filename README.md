@@ -24,6 +24,8 @@ Focused Attention Meditation におけるEEGの個人差を調べる。
 Dataset: L-FAME  
 Longitudinal Focused Attention Meditation EEG Dataset
 
+https://arxiv.org/abs/2605.22893
+
 参加者：74名  
 年齢：平均約22歳  
 EEG：64 channel  
