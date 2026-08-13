@@ -160,3 +160,8 @@ focused-attention-meditation-eeg-analysis/
 - MATLAB / EEGLABを使用
 - GitHubリポジトリ作成
 - まずREADMEを作成
+<<<<<<< Updated upstream
+=======
+- fft分析するために、何をするか整理
+- 必要なラベルを確認
+- １人分の脳波確認
