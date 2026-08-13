@@ -128,7 +128,7 @@ Machine Learning用：
 
 ```text
 focused-attention-meditation-eeg-analysis/
-│
+│── download_sub-01.py        # サイトからsub-01のみインポートするため
 ├── README.md                 # 研究目的・使用データ・解析方針・進捗をまとめる
 ├── .gitignore                # GitHubにアップロードしないファイルを指定する
 ├── LICENSE                   # リポジトリのライセンス
