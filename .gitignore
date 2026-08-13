@@ -1,0 +1,19 @@
+# MATLAB temporary files
+*.asv
+*.m~
+*.slxc
+*.mex*
+*.p
+
+# Simulink cache
+slprj/
+
+# OS / Editor junk files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Large Data files (EEG data)
+data/raw/
+*.mat
