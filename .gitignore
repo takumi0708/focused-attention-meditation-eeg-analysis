@@ -59,6 +59,9 @@ Desktop.ini
 # VS Code
 .vscode/
 
+# dont up csv
+results/csv/
+
 
 # =========================================================
 # Temporary files
