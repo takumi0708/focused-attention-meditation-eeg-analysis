@@ -3,7 +3,7 @@
 L-FAME（Longitudinal Focused Attention Meditation EEG）データを用いた
 瞑想時EEGの解析メモ・解析コードを管理するリポジトリ。
 
-## 1. 目的
+## 目的
 
 Focused Attention Meditation におけるEEGの個人差を調べる。
 
