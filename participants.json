@@ -1,0 +1,43 @@
+{
+    "participant_id": {
+        "Description": "Unique participant identifier"
+    },
+    "group": {
+        "Description": "Experimental meditation group assignment",
+        "Levels": {
+            "HK": "Hare Krishna meditation",
+            "SA": "Satanama meditation",
+            "BF": "Breath-Focus meditation"
+        }
+    },
+    "pre_test": {
+        "Description": "Completion status of the baseline (pre-training) EEG recording session",
+        "Levels": {
+            "done": "Session completed successfully"
+        }
+    },
+    "post_test": {
+        "Description": "Completion status of the follow-up (post-training) EEG recording session",
+        "Levels": {
+            "done": "Session completed successfully"
+        }
+    },
+    "age": {
+        "Description": "Age of the participant",
+        "Units": "years"
+    },
+    "sex": {
+        "Description": "Sex of the participant",
+        "Levels": {
+            "F": "Female",
+            "M": "Male"
+        }
+    },
+    "hand": {
+        "Description": "Handedness of the participant",
+        "Levels": {
+            "R": "Right-handed",
+            "L": "Left-handed"
+        }
+    }
+}

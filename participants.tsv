@@ -1,0 +1,75 @@
+participant_id	group	post_test	pre_test	age	sex	hand
+sub-01	HK	done	done	21	F	R
+sub-02	HK	done	done	19	F	R
+sub-03	SA	done	done	21	F	R
+sub-04	SA	done	done	21	F	R
+sub-05	BF	done	done	22	F	R
+sub-06	SA	done	done	20	F	L
+sub-07	BF	done	done	21	M	R
+sub-08	HK	done	done	19	F	R
+sub-09	BF	done	done	21	M	L
+sub-10	HK	done	done	19	F	R
+sub-11	BF	done	done	20	F	R
+sub-12	SA	done	done	20	F	L
+sub-13	SA	done	done	21	M	R
+sub-14	BF	done	done	20	F	R
+sub-15	BF	done	done	22	M	R
+sub-16	HK	done	done	21	F	R
+sub-17	HK	done	done	21	F	R
+sub-18	HK	done	done	20	M	R
+sub-19	SA	done	done	26	F	R
+sub-20	HK	done	done	31	M	R
+sub-21	SA	done	done	27	M	R
+sub-22	BF	done	done	27	F	R
+sub-23	HK	done	done	21	F	R
+sub-24	HK	done	done	22	F	R
+sub-25	BF	done	done	21	F	R
+sub-26	SA	done	done	20	M	R
+sub-27	HK	done	done	20	M	R
+sub-28	BF	done	done	28	M	R
+sub-29	HK	done	done	30	F	R
+sub-30	SA	done	done	26	M	R
+sub-31	SA		done	18	F	R
+sub-32	HK		done	21	F	R
+sub-33	SA	done	done	20	F	R
+sub-34	HK	done	done	28	M	R
+sub-35	HK		done	25	F	L
+sub-36	SA	done	done	20	M	R
+sub-37	HK		done	24	M	R
+sub-38	HK	done	done	20	M	R
+sub-39	HK	done	done	21	M	R
+sub-40	HK	done	done	19	M	R
+sub-41	HK	done	done	33	M	L
+sub-42	HK		done	18	M	R
+sub-43	HK	done	done	20	F	R
+sub-44	SA		done	24	F	R
+sub-45	HK		done	25	F	R
+sub-46	HK	done	done	20	F	n/a
+sub-47	SA	done	done	24	F	R
+sub-48	SA	done	done	20	F	R
+sub-49	SA	done	done	23	M	R
+sub-50	HK		done	21	M	R
+sub-51	SA	done	done	28	M	R
+sub-52	HK		done	31	F	R
+sub-53	SA	done	done	19	F	R
+sub-54	SA		done	21	M	R
+sub-55	HK		done	19	F	R
+sub-56	HK		done	18	M	R
+sub-57	HK		done	20	M	R
+sub-58	HK		done	21	F	R
+sub-59	HK		done	20	F	R
+sub-60	BF		done	21	F	R
+sub-61	BF		done	22	F	R
+sub-62	BF		done	19	M	R
+sub-63	BF		done	22	F	R
+sub-64	BF		done	18	F	R
+sub-65	BF		done	19	F	R
+sub-66	BF		done	33	F	R
+sub-67	SA		done	22	M	R
+sub-68	SA		done	21	F	R
+sub-69	SA		done	21	F	R
+sub-70	SA		done	25	M	R
+sub-71	SA		done	20	F	R
+sub-72	SA		done	20	F	R
+sub-73	SA		done	18	F	R
+sub-74	SA		done	21	F	R
