@@ -1,4 +1,6 @@
-function save_eeg_waveforms(EEG, save_dir, file_prefix, sec, channels_per_fig)
+function save_eeg_waveforms(EEG, ...
+save_dir, file_prefix, ...
+sec, channels_per_fig)
 
 %{
 save_eeg_waveforms
@@ -188,7 +190,7 @@ sub-001 の slMedita pre の preica を読み込み、
 % =========================================
 
 pre_data_dir = ...
-    'C:\Users\zhang\OneDrive\Desktop\EEG_analysis\focused-attention-meditation-eeg-analysis\data\derivatives\eeglab_preproc\sub-001\ses-premedita\eeg';
+    '';
 
 preica_eeg = pop_loadset( ...
     'filename', ...
