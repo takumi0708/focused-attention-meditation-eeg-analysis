@@ -95,6 +95,47 @@ Machine Learning用：
 
 今回はまず前処理済みEEGLABデータを使用する予定。
 
+## ディレクトリ構造
+
+変更次第、追加していく
+
+``` plain text
+focused-attention-meditation-eeg-analysis/
+│
+├── data/                         # EEGデータを保存
+│   ├── raw/                      # 公開データから取得した元データ（変更しない）
+│   ├── preprocessed/             # ICA除去など前処理済みのEEGデータ
+│   └── processed/                # PSD・帯域パワーなど解析用に加工したデータ
+│
+├── code/                         # EEG解析に使用するコード
+│   ├── functions/                # 複数の解析で再利用するMATLAB関数
+│   │
+│   └── scripts/                  # 実際の解析処理を実行するスクリプト
+│       ├── 01_data_check/        # データ構造・被験者数・EEG情報などの確認
+│       ├── 02_preprocessing/     # ICAなどEEGの前処理
+│       ├── 03_psd/               # PSD・相対PSD・帯域パワーの計算
+│       ├── 04_qc/                # 波形・PSDなどを用いた品質確認（QC）
+│       ├── 05_analysis/          # 条件比較・統計解析など本解析
+│       └── sandbox/              # 試行錯誤・動作確認・一時的な解析コード
+│
+├── download_scripts/             # 公開データをダウンロードするスクリプト
+│
+├── results/                      # 解析によって得られた数値結果
+│   ├── psd/                      # PSDの計算結果
+│   ├── band_power/               # 周波数帯域ごとのパワー
+│   ├── qc/                       # QCの判定結果・除外対象など
+│   └── statistics/               # 統計解析の結果
+│
+├── figures/                      # 解析で作成した図・グラフ
+│   ├── raw_eeg/                  # EEG原波形
+│   ├── psd/                      # PSDのグラフ
+│   ├── qc/                       # QC確認用の図
+│   ├── topoplot/                 # 頭皮上の分布を示すtopoplot
+│   └── final/                    # 発表・論文などで使用する最終版の図
+│
+└── docs/                         # 研究・解析方法に関するドキュメント
+                                    # 解析計画、前処理方法、研究メモなど
+
 ## 前処理
 
 論文で提供されている前処理済みEEGでは、
