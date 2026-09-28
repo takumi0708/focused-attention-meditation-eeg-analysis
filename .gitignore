@@ -5,6 +5,8 @@
 
 data/
 
+*.json
+
 # EEG / BrainVision
 *.eeg
 *.vhdr

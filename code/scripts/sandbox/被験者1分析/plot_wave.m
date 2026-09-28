@@ -1,4 +1,4 @@
-function plot_wave(epoches, EEG, ch_name, save_dir)
+function plot_wave(epoches, EEG, ch_name, condition, save_dir)
 %PLOT_WAVE 指定チャネルの各エポックの原波形を保存する
 % 20260927 作成
 % 
@@ -6,12 +6,14 @@ function plot_wave(epoches, EEG, ch_name, save_dir)
 %       epoches  - channel × samples × epochs
 %       EEG      - EEGLABのEEG構造体
 %       ch_name  - チャネル名（例："Fz"）
+%       condition- Pre MWなどの状態
 %       save_dir - 保存先の親フォルダ
 
     arguments
         epoches
         EEG struct
         ch_name string
+        condition string
         save_dir string
     end
 
@@ -56,9 +58,9 @@ function plot_wave(epoches, EEG, ch_name, save_dir)
         ylabel("Amplitude [\muV]", "FontSize", 18);
 
         % タイトル
-        title(ch_name + " - Epoch " + ep, ...
-            "FontSize", 22, ...
-            "FontWeight", "bold");
+        title(condition + " - " + ch_name + " - Epoch " + ep, ...
+        "FontSize", 22, ...
+        "FontWeight", "bold");
 
         % 目盛りの文字サイズ
         ax = gca;

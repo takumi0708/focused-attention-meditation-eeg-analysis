@@ -14,11 +14,8 @@ epoches = divide_epoches(EEG, 10);
 % サイズ確認
 size(epoches)
 
-% 保存先
-save_dir = "figure";
+condition = "Pre MW";
+save_dir = fullfile("figure", "pre_MW");
 
-% Fzの原波形
-plot_wave(epoches, EEG, "Fz", save_dir);
-
-% FzのPSD
-plot_psd(epoches, EEG, "Fz", save_dir);
+plot_wave(epoches, EEG, "Fz", condition, save_dir);
+plot_psd(epoches, EEG, "Fz", condition, save_dir);

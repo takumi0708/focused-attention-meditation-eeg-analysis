@@ -1,16 +1,18 @@
-function plot_psd(epoches, EEG, ch_name, save_dir)
+function plot_psd(epoches, EEG, ch_name, condition, save_dir)
 %PLOT_PSD 指定チャネルの各エポックのPSDを計算・保存する
 %
 %   入力:
 %       epoches  - channel × samples × epochs
 %       EEG      - EEGLABのEEG構造体
 %       ch_name  - チャネル名（例："Fz"）
+%       condition  - Pre MWなどの状態
 %       save_dir - 保存先の親フォルダ
 
     arguments
         epoches
         EEG struct
         ch_name string
+        condition string
         save_dir string
     end
 
@@ -57,9 +59,9 @@ function plot_psd(epoches, EEG, ch_name, save_dir)
         ylabel("PSD [\muV^2/Hz]", ...
             "FontSize", 18);
 
-        title(ch_name + " - PSD - Epoch " + ep, ...
-            "FontSize", 22, ...
-            "FontWeight", "bold");
+        title(condition + " - " + ch_name + " PSD - Epoch " + ep, ...
+        "FontSize", 22, ...
+        "FontWeight", "bold");
 
         ax = gca;
         ax.FontSize = 16;
