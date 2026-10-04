@@ -131,6 +131,7 @@ focused-attention-meditation-eeg-analysis/
 │   ├── psd/                      # PSDのグラフ
 │   ├── qc/                       # QC確認用の図
 │   ├── topoplot/                 # 頭皮上の分布を示すtopoplot
+|   ├── heatmap/                  # 脳部位の特徴を可視化するヒートマップ
 │   └── final/                    # 発表・論文などで使用する最終版の図
 │
 └── docs/                         # 研究・解析方法に関するドキュメント
