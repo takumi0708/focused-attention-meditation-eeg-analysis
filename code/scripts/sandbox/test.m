@@ -1,112 +1,121 @@
-%{
-やりたいこと
-ー脳波読み込む
-ーファイル自動で作成
-ー脳波画像を自動で保存するコード
-
-目的
-ーコードを１から書く練習
-ーコントロール感を得るため　研究において
-%}
+%% compare_preica_icrm.m
 
 clear;
 clc;
-close all;
 
-% EEGLAB 脳波サンプル
-eeglab_sample_dir = 'C:\Users\zhang\AppData\Roaming\MathWorks\MATLAB Add-Ons\Collections\EEGLAB\sample_data';
+%% ------------------------------------------------
+% preICA ファイルを選択
+%% ------------------------------------------------
 
-% テストに必要な2つのファイルを現在の分析フォルダにコピー
-copyfile(fullfile(eeglab_sample_dir, 'eeglab_data.set'), '.');
-copyfile(fullfile(eeglab_sample_dir, 'eeglab_data.fdt'), '.');
+[pre_file, pre_folder] = uigetfile( ...
+    '*.set', ...
+    'preICA ファイルを選択してください' ...
+);
 
-%% ここから練習
-
-%{
-9/6作成
-脳波読み込んでフォルダ自動作成して
-脳波画像を自動で保存するコード練習
-%}
-
-clear; clc; close all;
-
-eeglab;
-EEG = pop_loadset('filename', 'eeglab_data.set');
-
-% 5s,16chずつ　フォルダに保存
-sec = 5;
-ch_per_fig = 16;
-save_dir = './output';
-
-if ~exist(save_dir, 'dir') % 'dir' に修正
-    mkdir(save_dir);
+if isequal(pre_file, 0)
+    return;
 end
 
-% 時間軸　オフセット　写真枚数
-fs = EEG.srate;
-nSample = round(sec * fs);
-t = (0 : nSample-1) / fs;
+pre_path = fullfile(pre_folder, pre_file);
 
-% 【重要】1点目からnSample点目までの「範囲」を抽出（: から 1:nSample に修正）
-data = double(EEG.data(:, 1:nSample));
 
-% 各チャネルの標準偏差の中央値＊６
-% yの位置をずらす用
-offset = mean(std(data,0,2)) * 6; % コメントに合わせて「* 6」を追加すると見やすくなります
-% 写真数 EEG.nbchan(number of bio-channels)
-nGroup = ceil(EEG.nbchan / ch_per_fig);
+%% ------------------------------------------------
+% ICA除去後ファイルを選択
+%% ------------------------------------------------
 
-%% 描画と保存
-for g = 1 : nGroup
-    % start, endを定義
-    ch_start = (g -1) * ch_per_fig + 1;
-    ch_end = min(g * ch_per_fig, EEG.nbchan);
-    % 今回のchの配列
-    ch_index = ch_start:ch_end;
+[ica_file, ica_folder] = uigetfile( ...
+    '*.set', ...
+    'ICA除去後ファイルを選択してください' ...
+);
 
-    % 'Visible', 'on' に修正（裏で静かにやりたい場合は 'off' にしてください）
-    fig = figure('Visible', 'on');
-    % 同じ画面に描画
-    hold on;
-
-    % 1本ずつずらしながら描画
-    for i = 1:length(ch_index)
-        ch = ch_index(i);
-
-        % MATLAB は通常は下から上なので、逆にする設定
-        % 高い位置からずらしていく(最初が一番大きい)
-        y_offset = (length(ch_index) - i)*offset;
-
-        plot(t, data(ch, :) + y_offset, 'blue'); % 'blue' に修正
-    end
-    %重ね書き終了
-    hold off;
-
-    % 見た目変更
-
-    % y軸のメモリ（length のタイポを修正）
-    y_positions = (0:length(ch_index)-1)*offset;
-
-    % label
-    labels = {EEG.chanlocs(ch_index).labels};
-
-    % y軸にメモリセット(自分で設定)
-    yticks(y_positions);
-
-    % メモリの場所にラベル貼る
-    yticklabels(flip(labels));
-
-    % 範囲限定
-    xlim([0, sec]);
-    grid on;
-
-    % 保存名 string print format
-    filename = sprintf('wave_%02d.png', g); % 引数をシングルクォーテーションに修正
-
-    % グラフ画面(fig)を保存
-    exportgraphics(fig, fullfile(save_dir, filename));
-
-    close(fig);
+if isequal(ica_file, 0)
+    return;
 end
 
-disp('完了！');
+ica_path = fullfile(ica_folder, ica_file);
+
+
+%% ------------------------------------------------
+% 読み込み
+%% ------------------------------------------------
+
+EEG_pre = pop_loadset(pre_path);
+EEG_ica = pop_loadset(ica_path);
+
+pre_data = double(EEG_pre.data);
+ica_data = double(EEG_ica.data);
+
+
+%% ------------------------------------------------
+% サイズ確認
+%% ------------------------------------------------
+
+fprintf('\n--- Data size ---\n');
+
+fprintf( ...
+    'preICA : %d ch x %d samples\n', ...
+    size(pre_data, 1), ...
+    size(pre_data, 2) ...
+);
+
+fprintf( ...
+    'ICA後  : %d ch x %d samples\n', ...
+    size(ica_data, 1), ...
+    size(ica_data, 2) ...
+);
+
+
+%% ------------------------------------------------
+% 全体的な振幅を比較
+%% ------------------------------------------------
+
+% 各chの標準偏差
+pre_std = std(pre_data, 0, 2);
+ica_std = std(ica_data, 0, 2);
+
+% 全chの標準偏差の平均
+mean_pre_std = mean(pre_std);
+mean_ica_std = mean(ica_std);
+
+% データ全体の最大絶対値
+max_pre = max(abs(pre_data(:)));
+max_ica = max(abs(ica_data(:)));
+
+
+fprintf('\n--- Amplitude ---\n');
+
+fprintf( ...
+    'Mean channel SD\n' ...
+);
+
+fprintf( ...
+    'preICA : %.2f uV\n', ...
+    mean_pre_std ...
+);
+
+fprintf( ...
+    'ICA後  : %.2f uV\n', ...
+    mean_ica_std ...
+);
+
+
+fprintf('\nMaximum absolute amplitude\n');
+
+fprintf( ...
+    'preICA : %.2f uV\n', ...
+    max_pre ...
+);
+
+fprintf( ...
+    'ICA後  : %.2f uV\n', ...
+    max_ica ...
+);
+
+
+%% ------------------------------------------------
+% ICA後 / preICA の比率
+%% ------------------------------------------------
+
+ratio = mean_ica_std / mean_pre_std;
+
+fprintf('\nICA後 / preICA = %.3f\n', ratio);
