@@ -1,3 +1,27 @@
+%{
+概要
+ー.setファイルを読み込んで、ICA除去後の.setを出力する関数
+ー閾値は選択できるようになってる（L-FAMEの論文は0.9以上で除去）
+
+流れ
+ーICA前の.setを読み込む
+ーICA実施で64個のICAに分解
+ーICAlabelを適用（学習済みの分類器により確率を算出）
+ーic_threshold 以上の確率のICを除去
+ー残ったICで64chに再構成
+
+プログラムの挙動
+ーファイルのディレクトリを受け取る
+ーこれを分割して*.setのやつのみ取り出す
+ーEEGを読み込む pop_loadset()
+ーpop_runica()でICAを実行する
+ーICAlabelでICの確率を算出
+ーpop_icaflag()で閾値以上を除去する
+ーbad_ic = find(EEG.reject.gcompreject)でbad channelを配列にまとめる
+ーn_removedにbad_icに数を入れる
+ーbad_idがあるなら、pop_subcomp()でノイズICを除去したICから元のチャンネル×時間波形のデータに逆変換（再構成）
+ーその後ファイル名をpreica → icrm に置換して保存
+%}
 function n_removed = run_ica_preprocessing( ...
     input_file, ...
     output_dir, ...
@@ -25,13 +49,13 @@ function n_removed = run_ica_preprocessing( ...
 % ic_threshold : 7×2 double
 %   ICLabelの各クラスに対する除去判定閾値。
 %   行の順番は以下の通り。
-%     1. Brain
-%     2. Muscle
-%     3. Eye
-%     4. Heart
-%     5. Line Noise
-%     6. Channel Noise
-%     7. Other
+%     1. Brain　脳活動
+%     2. Muscle　筋電ノイズ（高周波）
+%     3. Eye　眼球、瞬き
+%     4. Heart　心電のEOGが影響
+%     5. Line Noise　電源ノイズ
+%     6. Channel Noise　電極などの接触不良ノイズ
+%     7. Other　上記でも分類できない原因不明のノイズ群
 %
 % Outputs
 % --------
@@ -116,6 +140,7 @@ fprintf("ICLabel completed\n");
 
 fprintf("\nDetecting artifact ICs...\n");
 
+% それぞれのICに対し、閾値以上ならtrue（除去）を各ICに関して行う
 EEG = pop_icflag( ...
     EEG, ...
     ic_threshold);
