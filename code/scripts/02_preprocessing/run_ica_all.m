@@ -70,7 +70,7 @@ end
 % 対象
 %% =========================
 
-subjects = 1;
+subjects = 1:74;
 
 sessions = [
     "pre"
@@ -129,7 +129,12 @@ log_status = strings(0);
 log_n_removed = [];
 log_message = strings(0);
 
+%% 最初に1回だけ
+eeglab nogui;
 
+if exist('pop_iclabel', 'file') ~= 2
+    error('ICLabelが見つかりません');
+end
 %% =========================
 % 全被験者を処理
 %% =========================
