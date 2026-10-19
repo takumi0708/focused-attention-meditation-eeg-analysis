@@ -1,4 +1,4 @@
-function export_psd(subject, channel_name, data_root, result_root)
+function export_band_psd(subject, channel_name, data_root, result_root)
 % export_psd
 %
 % 指定した被験者・チャネルについて、
