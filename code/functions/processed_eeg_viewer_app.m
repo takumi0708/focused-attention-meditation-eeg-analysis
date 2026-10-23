@@ -10,6 +10,7 @@ function processed_eeg_viewer_app()
     % eegplot上で
     %   ・Channelを選択
     %   ・現在表示している4.096秒区間のPSDを見る
+    %   ・現在表示している4.096秒区間のTopoplotを見る
     %
     % =========================================================
 
@@ -76,7 +77,7 @@ function processed_eeg_viewer_app()
 
     uilabel(fig, ...
         'Text', 'Condition', ...
-        'Position', [x_label 150 w_input h_element]);
+        'Position', [x_label 150 w_label h_element]);
 
     conditionDropDown = uidropdown(fig, ...
         'Position', [x_input 150 w_input h_element]);
@@ -466,15 +467,13 @@ function processed_eeg_viewer_app()
 
         %% =====================================================
         % PSD用 Channel選択
-        %
-        % eegplot右上に追加
         % ======================================================
 
         uicontrol( ...
             eegFig, ...
             'Style', 'text', ...
             'Units', 'normalized', ...
-            'Position', [0.81 0.91 0.07 0.035], ...
+            'Position', [0.80 0.91 0.08 0.035], ...
             'String', 'PSD Channel', ...
             'HorizontalAlignment', 'center');
 
@@ -518,19 +517,49 @@ function processed_eeg_viewer_app()
 
 
         %% =====================================================
+        % Topoplot用 Band選択
+        % ======================================================
+
+        uicontrol( ...
+            eegFig, ...
+            'Style', 'text', ...
+            'Units', 'normalized', ...
+            'Position', [0.81 0.81 0.07 0.035], ...
+            'String', 'Band', ...
+            'HorizontalAlignment', 'center');
+
+
+        bandMenu = uicontrol( ...
+            eegFig, ...
+            'Style', 'popupmenu', ...
+            'Units', 'normalized', ...
+            'Position', [0.88 0.81 0.07 0.04], ...
+            'String', {'Theta', 'Alpha', 'Beta'}, ...
+            'Value', 2);
+
+
+        %% =====================================================
+        % Topoplot表示ボタン
+        % ======================================================
+
+        uicontrol( ...
+            eegFig, ...
+            'Style', 'pushbutton', ...
+            'Units', 'normalized', ...
+            'Position', [0.88 0.76 0.07 0.045], ...
+            'String', 'Topoplot', ...
+            'FontWeight', 'bold', ...
+            'Callback', @showCurrentTopoplot);
+
+
+        %% =====================================================
         % PSD callback
         % ======================================================
 
         function showCurrentPSD(~, ~)
 
             %% -----------------------------------------------
-            % eegplotの現在位置を取得
-            %
-            % g.time
-            %   = 現在表示されている開始時刻
-            %
-            % g.winlength
-            %   = 現在の表示時間
+            % eegplotの現在位置
             % -----------------------------------------------
 
             g = get( ...
@@ -571,10 +600,6 @@ function processed_eeg_viewer_app()
                 round(duration_sec * fs) - 1;
 
 
-            %% -----------------------------------------------
-            % 最後を超えた場合
-            % -----------------------------------------------
-
             if end_sample > EEG.pnts
 
                 end_sample = EEG.pnts;
@@ -590,7 +615,7 @@ function processed_eeg_viewer_app()
 
 
             %% -----------------------------------------------
-            % 現在表示中の区間を取得
+            % 現在表示中の区間
             % -----------------------------------------------
 
             signal = double( ...
@@ -610,7 +635,6 @@ function processed_eeg_viewer_app()
                 round(window_sec * fs);
 
 
-            % signalよりwindowが長くならないようにする
             window_length = min( ...
                 window_length, ...
                 length(signal));
@@ -652,7 +676,6 @@ function processed_eeg_viewer_app()
                 freq(idx);
 
 
-            % dB変換しない
             psd_plot = ...
                 pxx(idx);
 
@@ -673,10 +696,6 @@ function processed_eeg_viewer_app()
                     condition), ...
                 'NumberTitle', 'off');
 
-
-            %% -----------------------------------------------
-            % 画面中央
-            % -----------------------------------------------
 
             psdFig.Position(3) = 900;
 
@@ -723,7 +742,7 @@ function processed_eeg_viewer_app()
 
 
             %% -----------------------------------------------
-            % 周波数帯域の境界
+            % 周波数帯域境界
             % -----------------------------------------------
 
             xline( ...
@@ -749,6 +768,220 @@ function processed_eeg_viewer_app()
                 '--', ...
                 'β / γ');
 
+        end
+
+
+        %% =====================================================
+        % Topoplot callback
+        % ======================================================
+
+        function showCurrentTopoplot(~, ~)
+
+            %% -----------------------------------------------
+            % eegplotの現在表示区間
+            % -----------------------------------------------
+
+            g = get( ...
+                eegFig, ...
+                'UserData');
+
+
+            start_sec = g.time;
+
+            duration_sec = g.winlength;
+
+            fs = EEG.srate;
+
+
+            %% -----------------------------------------------
+            % sample番号
+            % -----------------------------------------------
+
+            start_sample = ...
+                round(start_sec * fs) + 1;
+
+
+            end_sample = ...
+                start_sample + ...
+                round(duration_sec * fs) - 1;
+
+
+            if end_sample > EEG.pnts
+
+                end_sample = EEG.pnts;
+
+            end
+
+
+            if start_sample < 1
+
+                start_sample = 1;
+
+            end
+
+
+            %% -----------------------------------------------
+            % Band選択
+            % -----------------------------------------------
+
+            band_idx = bandMenu.Value;
+
+
+            switch band_idx
+
+                case 1
+
+                    band_name = "Theta";
+
+                    band_range = [4 8];
+
+
+                case 2
+
+                    band_name = "Alpha";
+
+                    band_range = [8 13];
+
+
+                case 3
+
+                    band_name = "Beta";
+
+                    band_range = [13 30];
+
+            end
+
+
+            %% -----------------------------------------------
+            % 各Channelの帯域Power
+            % -----------------------------------------------
+
+            band_power = zeros( ...
+                EEG.nbchan, ...
+                1);
+
+
+            for ch = 1:EEG.nbchan
+
+
+                signal = double( ...
+                    EEG.data( ...
+                        ch, ...
+                        start_sample:end_sample));
+
+
+                %% -------------------------
+                % Welch法
+                % --------------------------
+
+                window_sec = 2;
+
+
+                window_length = ...
+                    round(window_sec * fs);
+
+
+                window_length = min( ...
+                    window_length, ...
+                    length(signal));
+
+
+                window = ...
+                    hamming(window_length);
+
+
+                noverlap = ...
+                    round( ...
+                        window_length * 0.5);
+
+
+                nfft = max( ...
+                    512, ...
+                    2^nextpow2( ...
+                        window_length));
+
+
+                [pxx, freq] = pwelch( ...
+                    signal, ...
+                    window, ...
+                    noverlap, ...
+                    nfft, ...
+                    fs);
+
+
+                %% -------------------------
+                % 対象帯域
+                % --------------------------
+
+                idx = ...
+                    freq >= band_range(1) & ...
+                    freq <= band_range(2);
+
+
+                %% -------------------------
+                % 帯域Power
+                % --------------------------
+
+                band_power(ch) = ...
+                    mean(pxx(idx));
+
+            end
+
+
+            %% =================================================
+            % Topoplot Figure
+            % ==================================================
+
+            topoFig = figure( ...
+                'Name', ...
+                char( ...
+                    band_name + ...
+                    " Topoplot | " + ...
+                    subject + ...
+                    " / " + ...
+                    session + ...
+                    " / " + ...
+                    condition), ...
+                'NumberTitle', 'off');
+
+
+            topoFig.Position(3) = 650;
+
+            topoFig.Position(4) = 600;
+
+
+            movegui( ...
+                topoFig, ...
+                'center');
+
+
+            %% -----------------------------------------------
+            % Topoplot
+            % -----------------------------------------------
+
+            topoplot( ...
+                band_power, ...
+                EEG.chanlocs, ...
+                'electrodes', ...
+                'on');
+
+
+            colorbar;
+
+
+            title( ...
+                band_name + ...
+                " " + ...
+                num2str(band_range(1)) + ...
+                "-" + ...
+                num2str(band_range(2)) + ...
+                " Hz | " + ...
+                num2str(start_sec, '%.3f') + ...
+                " - " + ...
+                num2str( ...
+                    start_sec + duration_sec, ...
+                    '%.3f') + ...
+                " sec");
 
         end
 
