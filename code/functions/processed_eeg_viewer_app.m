@@ -1,28 +1,16 @@
-%{
-実行例
-ーsubject session(pre/post) condition(4条件)を選択
-ーprocessed/sub-001/pre/からsub-001_ses-premedita_task-slMedita_eeg_preproc_icrm.setを読み込む
-
-アプリの動き
-ーprocessedフォルダを見る
-ーsubject一覧を得る
-ー選択したsubjectのpre/postを得る
-ーそのsession直下の*_icrm.set を探す
-ー対象の脳波を読み込む
-
-sessyion 直下の4ファイルをどう選択する？
-ーfile_pattern = ...
-    "*_task-" + condition + "_eeg_preproc_icrm.set";
-ーtask- の後ろのcondiotionで分岐できる
-%}
-
 function processed_eeg_viewer_app()
 
     % =========================================================
     % L-FAME Processed EEG Viewer
     %
-    % Subject / Session / Condition をGUIで選択し、
-    % ICA除去後の *_icrm.set をEEGLABで表示する
+    % Subject / Session / Condition を選択
+    %
+    % eegplotで脳波を表示
+    %
+    % eegplot上で
+    %   ・Channelを選択
+    %   ・現在表示している4.096秒区間のPSDを見る
+    %
     % =========================================================
 
 
@@ -88,7 +76,7 @@ function processed_eeg_viewer_app()
 
     uilabel(fig, ...
         'Text', 'Condition', ...
-        'Position', [x_label 150 w_label h_element]);
+        'Position', [x_label 150 w_input h_element]);
 
     conditionDropDown = uidropdown(fig, ...
         'Position', [x_input 150 w_input h_element]);
@@ -122,12 +110,11 @@ function processed_eeg_viewer_app()
 
 
     %% =========================================================
-    % Subject一覧を読み込む
+    % Subject一覧
     % ==========================================================
 
     function loadSubjects()
 
-        % processed 内の sub-* フォルダを取得
         dirs = dir(fullfile(root_dir, "sub-*"));
 
         dirs = dirs([dirs.isdir]);
@@ -153,6 +140,7 @@ function processed_eeg_viewer_app()
 
         subjectDropDown.Value = subjects(1);
 
+
         loadSessions();
 
     end
@@ -160,7 +148,7 @@ function processed_eeg_viewer_app()
 
 
     %% =========================================================
-    % Session一覧を読み込む
+    % Session一覧
     % ==========================================================
 
     function loadSessions()
@@ -180,7 +168,7 @@ function processed_eeg_viewer_app()
         names = string({dirs.name});
 
 
-        % pre / post だけ取得
+        % pre / postだけ取得
         sessions = names( ...
             ismember(names, ["pre", "post"]));
 
@@ -202,6 +190,7 @@ function processed_eeg_viewer_app()
 
         sessionDropDown.Value = sessions(1);
 
+
         loadConditions();
 
     end
@@ -209,12 +198,13 @@ function processed_eeg_viewer_app()
 
 
     %% =========================================================
-    % Condition一覧を読み込む
+    % Condition一覧
     % ==========================================================
 
     function loadConditions()
 
         subject = string(subjectDropDown.Value);
+
         session = string(sessionDropDown.Value);
 
 
@@ -224,7 +214,6 @@ function processed_eeg_viewer_app()
             session);
 
 
-        % Session直下の *_icrm.set を取得
         files = dir(fullfile( ...
             session_dir, ...
             "*_icrm.set"));
@@ -242,7 +231,6 @@ function processed_eeg_viewer_app()
         end
 
 
-        % 条件名を格納
         conditions = strings(0);
 
 
@@ -250,9 +238,7 @@ function processed_eeg_viewer_app()
 
             filename = string(files(i).name);
 
-            % ファイル名の
-            % task-XXXX
-            % のXXXX部分だけ取り出す
+
             token = regexp( ...
                 filename, ...
                 'task-([^_]+)', ...
@@ -262,15 +248,17 @@ function processed_eeg_viewer_app()
 
             if ~isempty(token)
 
-                conditions(end + 1) = string(token{1});
+                conditions(end + 1) = ...
+                    string(token{1});
 
             end
 
         end
 
 
-        % 重複を削除
-        conditions = unique(conditions, 'stable');
+        conditions = unique( ...
+            conditions, ...
+            'stable');
 
 
         if isempty(conditions)
@@ -285,9 +273,11 @@ function processed_eeg_viewer_app()
         end
 
 
-        conditionDropDown.Items = cellstr(conditions);
+        conditionDropDown.Items = ...
+            cellstr(conditions);
 
-        conditionDropDown.Value = conditions(1);
+        conditionDropDown.Value = ...
+            conditions(1);
 
 
         statusLabel.Text = ...
@@ -300,13 +290,11 @@ function processed_eeg_viewer_app()
 
 
     %% =========================================================
-    % Subject変更時
+    % Subject変更
     % ==========================================================
 
     function subjectChanged(~, ~)
 
-        % Subjectが変わったら
-        % Sessionを更新
         loadSessions();
 
     end
@@ -314,13 +302,11 @@ function processed_eeg_viewer_app()
 
 
     %% =========================================================
-    % Session変更時
+    % Session変更
     % ==========================================================
 
     function sessionChanged(~, ~)
 
-        % Sessionが変わったら
-        % Conditionを更新
         loadConditions();
 
     end
@@ -334,7 +320,9 @@ function processed_eeg_viewer_app()
     function viewEEG(~, ~)
 
         subject = string(subjectDropDown.Value);
+
         session = string(sessionDropDown.Value);
+
         condition = string(conditionDropDown.Value);
 
 
@@ -349,11 +337,13 @@ function processed_eeg_viewer_app()
 
 
         %% -------------------------
-        % 対象の *_icrm.set を検索
+        % 対象ファイル
         % --------------------------
 
         file_pattern = ...
-            "*_task-" + condition + "_eeg_preproc_icrm.set";
+            "*_task-" + ...
+            condition + ...
+            "_eeg_preproc_icrm.set";
 
 
         files = dir(fullfile( ...
@@ -362,7 +352,7 @@ function processed_eeg_viewer_app()
 
 
         %% -------------------------
-        % 見つからない場合
+        % ファイルがない
         % --------------------------
 
         if isempty(files)
@@ -381,7 +371,7 @@ function processed_eeg_viewer_app()
 
 
         %% -------------------------
-        % 複数見つかった場合
+        % 複数ある
         % --------------------------
 
         if length(files) > 1
@@ -400,7 +390,7 @@ function processed_eeg_viewer_app()
 
 
         %% -------------------------
-        % 読み込み中
+        % EEG読み込み
         % --------------------------
 
         statusLabel.Text = ...
@@ -412,21 +402,23 @@ function processed_eeg_viewer_app()
         drawnow;
 
 
-        %% -------------------------
-        % EEGLABで読み込み
-        % --------------------------
-
         EEG = pop_loadset( ...
             'filename', files(1).name, ...
             'filepath', char(eeg_dir));
 
 
-        %% -------------------------
-        % EEG表示
+        %% =====================================================
+        % eegplot
         %
-        % データ自体は64chのまま
-        % 画面上は20chずつ表示
-        % --------------------------
+        % winlength = 4.096秒
+        % ======================================================
+
+        eegplot_tag = ...
+            "L_FAME_EEGPLOT_" + ...
+            subject + "_" + ...
+            session + "_" + ...
+            condition;
+
 
         eegplot( ...
             EEG.data, ...
@@ -434,6 +426,8 @@ function processed_eeg_viewer_app()
             'eloc_file', EEG.chanlocs, ...
             'events', EEG.event, ...
             'dispchans', 20, ...
+            'winlength', 4.096, ...
+            'tag', char(eegplot_tag), ...
             'title', char( ...
                 subject + ...
                 " / " + ...
@@ -443,9 +437,325 @@ function processed_eeg_viewer_app()
                 " [ICA removed]"));
 
 
+        %% =====================================================
+        % 作成されたeegplot Figureを取得
+        % ======================================================
+
+        eegFig = findobj( ...
+            'Type', 'figure', ...
+            'Tag', char(eegplot_tag));
+
+
+        if isempty(eegFig)
+
+            warning( ...
+                "eegplot Figureを取得できませんでした");
+
+            return;
+
+        end
+
+
+        %% =====================================================
+        % Channel一覧
+        % ======================================================
+
+        channel_labels = ...
+            string({EEG.chanlocs.labels});
+
+
+        %% =====================================================
+        % PSD用 Channel選択
+        %
+        % eegplot右上に追加
+        % ======================================================
+
+        uicontrol( ...
+            eegFig, ...
+            'Style', 'text', ...
+            'Units', 'normalized', ...
+            'Position', [0.81 0.91 0.07 0.035], ...
+            'String', 'PSD Channel', ...
+            'HorizontalAlignment', 'center');
+
+
+        psdChannelMenu = uicontrol( ...
+            eegFig, ...
+            'Style', 'popupmenu', ...
+            'Units', 'normalized', ...
+            'Position', [0.88 0.91 0.07 0.04], ...
+            'String', cellstr(channel_labels));
+
+
         %% -------------------------
-        % Status更新
+        % Fzを初期値
         % --------------------------
+
+        fz_idx = find( ...
+            strcmpi(channel_labels, "Fz"), ...
+            1);
+
+
+        if ~isempty(fz_idx)
+
+            psdChannelMenu.Value = fz_idx;
+
+        end
+
+
+        %% =====================================================
+        % PSD表示ボタン
+        % ======================================================
+
+        uicontrol( ...
+            eegFig, ...
+            'Style', 'pushbutton', ...
+            'Units', 'normalized', ...
+            'Position', [0.88 0.86 0.07 0.045], ...
+            'String', 'PSD', ...
+            'FontWeight', 'bold', ...
+            'Callback', @showCurrentPSD);
+
+
+        %% =====================================================
+        % PSD callback
+        % ======================================================
+
+        function showCurrentPSD(~, ~)
+
+            %% -----------------------------------------------
+            % eegplotの現在位置を取得
+            %
+            % g.time
+            %   = 現在表示されている開始時刻
+            %
+            % g.winlength
+            %   = 現在の表示時間
+            % -----------------------------------------------
+
+            g = get( ...
+                eegFig, ...
+                'UserData');
+
+
+            start_sec = g.time;
+
+            duration_sec = g.winlength;
+
+
+            %% -----------------------------------------------
+            % Channel
+            % -----------------------------------------------
+
+            channel_idx = ...
+                psdChannelMenu.Value;
+
+
+            selected_channel = ...
+                channel_labels(channel_idx);
+
+
+            %% -----------------------------------------------
+            % sample番号
+            % -----------------------------------------------
+
+            fs = EEG.srate;
+
+
+            start_sample = ...
+                round(start_sec * fs) + 1;
+
+
+            end_sample = ...
+                start_sample + ...
+                round(duration_sec * fs) - 1;
+
+
+            %% -----------------------------------------------
+            % 最後を超えた場合
+            % -----------------------------------------------
+
+            if end_sample > EEG.pnts
+
+                end_sample = EEG.pnts;
+
+            end
+
+
+            if start_sample < 1
+
+                start_sample = 1;
+
+            end
+
+
+            %% -----------------------------------------------
+            % 現在表示中の区間を取得
+            % -----------------------------------------------
+
+            signal = double( ...
+                EEG.data( ...
+                    channel_idx, ...
+                    start_sample:end_sample));
+
+
+            %% -----------------------------------------------
+            % Welch法
+            % -----------------------------------------------
+
+            window_sec = 2;
+
+
+            window_length = ...
+                round(window_sec * fs);
+
+
+            % signalよりwindowが長くならないようにする
+            window_length = min( ...
+                window_length, ...
+                length(signal));
+
+
+            window = ...
+                hamming(window_length);
+
+
+            noverlap = ...
+                round( ...
+                    window_length * 0.5);
+
+
+            nfft = max( ...
+                512, ...
+                2^nextpow2( ...
+                    window_length));
+
+
+            [pxx, freq] = pwelch( ...
+                signal, ...
+                window, ...
+                noverlap, ...
+                nfft, ...
+                fs);
+
+
+            %% -----------------------------------------------
+            % 1 ～ 45 Hz
+            % -----------------------------------------------
+
+            idx = ...
+                freq >= 1 & ...
+                freq <= 45;
+
+
+            freq_plot = ...
+                freq(idx);
+
+
+            % dB変換しない
+            psd_plot = ...
+                pxx(idx);
+
+
+            %% =================================================
+            % PSD Figure
+            % ==================================================
+
+            psdFig = figure( ...
+                'Name', ...
+                char( ...
+                    selected_channel + ...
+                    " PSD | " + ...
+                    subject + ...
+                    " / " + ...
+                    session + ...
+                    " / " + ...
+                    condition), ...
+                'NumberTitle', 'off');
+
+
+            %% -----------------------------------------------
+            % 画面中央
+            % -----------------------------------------------
+
+            psdFig.Position(3) = 900;
+
+            psdFig.Position(4) = 550;
+
+            movegui( ...
+                psdFig, ...
+                'center');
+
+
+            %% -----------------------------------------------
+            % PSD
+            % -----------------------------------------------
+
+            plot( ...
+                freq_plot, ...
+                psd_plot, ...
+                'LineWidth', 1.5);
+
+
+            xlabel( ...
+                'Frequency [Hz]');
+
+
+            ylabel( ...
+                'PSD [\muV^2/Hz]');
+
+
+            title( ...
+                selected_channel + ...
+                " PSD | " + ...
+                num2str(start_sec, '%.3f') + ...
+                " - " + ...
+                num2str( ...
+                    start_sec + duration_sec, ...
+                    '%.3f') + ...
+                " sec");
+
+
+            xlim([1 45]);
+
+
+            grid on;
+
+
+            %% -----------------------------------------------
+            % 周波数帯域の境界
+            % -----------------------------------------------
+
+            xline( ...
+                4, ...
+                '--', ...
+                'δ / θ');
+
+
+            xline( ...
+                8, ...
+                '--', ...
+                'θ / α');
+
+
+            xline( ...
+                13, ...
+                '--', ...
+                'α / β');
+
+
+            xline( ...
+                30, ...
+                '--', ...
+                'β / γ');
+
+
+        end
+
+
+        %% =====================================================
+        % Status
+        % ======================================================
 
         statusLabel.Text = ...
             "Viewing: " + ...
