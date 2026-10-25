@@ -1,121 +1,55 @@
-%% compare_preica_icrm.m
+%% ==========================================
+% L-FAME 64ch 電極配置図
+% ==========================================
 
 clear;
 clc;
 
-%% ------------------------------------------------
-% preICA ファイルを選択
-%% ------------------------------------------------
+%% ------------------------------------------
+% ファイル指定
+% -------------------------------------------
 
-[pre_file, pre_folder] = uigetfile( ...
-    '*.set', ...
-    'preICA ファイルを選択してください' ...
-);
+file_path = ...
+    'C:\MATLAB\focused-attention-meditation-eeg-analysis\data\processed\sub-001\pre';
 
-if isequal(pre_file, 0)
-    return;
-end
-
-pre_path = fullfile(pre_folder, pre_file);
+file_name = ...
+    'sub-001_ses-premedita_task-slMedita_eeg_preproc_icrm.set';
 
 
-%% ------------------------------------------------
-% ICA除去後ファイルを選択
-%% ------------------------------------------------
+%% ------------------------------------------
+% EEG読み込み
+% -------------------------------------------
 
-[ica_file, ica_folder] = uigetfile( ...
-    '*.set', ...
-    'ICA除去後ファイルを選択してください' ...
-);
-
-if isequal(ica_file, 0)
-    return;
-end
-
-ica_path = fullfile(ica_folder, ica_file);
+EEG = pop_loadset( ...
+    'filename', file_name, ...
+    'filepath', file_path);
 
 
-%% ------------------------------------------------
-% 読み込み
-%% ------------------------------------------------
+%% ------------------------------------------
+% 電極配置図
+% -------------------------------------------
 
-EEG_pre = pop_loadset(pre_path);
-EEG_ica = pop_loadset(ica_path);
+figure( ...
+    'Name', 'L-FAME 64ch Electrode Layout', ...
+    'Color', 'w');
 
-pre_data = double(EEG_pre.data);
-ica_data = double(EEG_ica.data);
+topoplot( ...
+    zeros(1, EEG.nbchan), ...
+    EEG.chanlocs, ...
+    'style', 'blank', ...
+    'electrodes', 'labels');
 
-
-%% ------------------------------------------------
-% サイズ確認
-%% ------------------------------------------------
-
-fprintf('\n--- Data size ---\n');
-
-fprintf( ...
-    'preICA : %d ch x %d samples\n', ...
-    size(pre_data, 1), ...
-    size(pre_data, 2) ...
-);
-
-fprintf( ...
-    'ICA後  : %d ch x %d samples\n', ...
-    size(ica_data, 1), ...
-    size(ica_data, 2) ...
-);
+title( ...
+    'L-FAME EEG Electrode Layout', ...
+    'FontSize', 16, ...
+    'FontWeight', 'bold');
 
 
-%% ------------------------------------------------
-% 全体的な振幅を比較
-%% ------------------------------------------------
+%% ------------------------------------------
+% PDF保存
+% -------------------------------------------
 
-% 各chの標準偏差
-pre_std = std(pre_data, 0, 2);
-ica_std = std(ica_data, 0, 2);
-
-% 全chの標準偏差の平均
-mean_pre_std = mean(pre_std);
-mean_ica_std = mean(ica_std);
-
-% データ全体の最大絶対値
-max_pre = max(abs(pre_data(:)));
-max_ica = max(abs(ica_data(:)));
-
-
-fprintf('\n--- Amplitude ---\n');
-
-fprintf( ...
-    'Mean channel SD\n' ...
-);
-
-fprintf( ...
-    'preICA : %.2f uV\n', ...
-    mean_pre_std ...
-);
-
-fprintf( ...
-    'ICA後  : %.2f uV\n', ...
-    mean_ica_std ...
-);
-
-
-fprintf('\nMaximum absolute amplitude\n');
-
-fprintf( ...
-    'preICA : %.2f uV\n', ...
-    max_pre ...
-);
-
-fprintf( ...
-    'ICA後  : %.2f uV\n', ...
-    max_ica ...
-);
-
-
-%% ------------------------------------------------
-% ICA後 / preICA の比率
-%% ------------------------------------------------
-
-ratio = mean_ica_std / mean_pre_std;
-
-fprintf('\nICA後 / preICA = %.3f\n', ratio);
+exportgraphics( ...
+    gcf, ...
+    'L_FAME_64ch_electrode_layout.pdf', ...
+    'ContentType', 'vector');
